@@ -1,40 +1,32 @@
 import * as React from 'react';
 import { IInputs, IOutputs } from "./generated/ManifestTypes";
-import { Label } from '@fluentui/react';
 import { IIconProps } from '@fluentui/react';
 import { DefaultButton } from '@fluentui/react/lib/Button';
 import { useState, useEffect } from 'react';
 
-export interface IHelloWorldProps {
-  name?: string;
-  title: string;
-  disabled?: boolean;
+export interface ILikeButtonProps {
   context: ComponentFramework.Context<IInputs>;
   query: string;
   recordId: string;
-  logical_name: string;
-
+  logicalName: string;
+  parentTableCollectionName: string;
+  lookUpAttributeName: string;
+  likeTableIdAttribute: string;
 }
-export interface IButtonExampleProps {
-  // These are set based on the toggles shown above the examples (not needed in real code)
-}
-
-
 
 const LikeIcon: IIconProps = { iconName: 'Like' };
 const LikeIconSolid: IIconProps = { iconName: 'LikeSolid' };
 
-export const HelloWorld: React.FC<IHelloWorldProps> = (props) => {
+export const LikeButton: React.FC<ILikeButtonProps> = (props) => {
   const [checked, setChecked] = React.useState(false);
   const [likeId, setLikeId] = React.useState("");
-//   const queryData: any = () => {
   
-
+  const attributeName: string = `${props.lookUpAttributeName}@odata.bind`
   const createLikeRecrod: any = () => {
     const data: any = {
-        "cr255_sample_product@odata.bind": `/sample_products(${props.recordId})`
+        [attributeName] : `/${props.parentTableCollectionName}(${props.recordId})`
     }; 
-    props.context.webAPI.createRecord(props.logical_name, data).then
+    props.context.webAPI.createRecord(props.logicalName, data).then
     (
         function (response: ComponentFramework.LookupValue)
         {
@@ -53,7 +45,7 @@ export const HelloWorld: React.FC<IHelloWorldProps> = (props) => {
 
   const deleteLikeRecrod: any = () => {
 
-    props.context.webAPI.deleteRecord(props.logical_name, likeId).then
+    props.context.webAPI.deleteRecord(props.logicalName, likeId).then
     (
         function (response: ComponentFramework.LookupValue)
         {
@@ -69,8 +61,8 @@ export const HelloWorld: React.FC<IHelloWorldProps> = (props) => {
         }
     );
   }
-  const getRecords: any = async (context: ComponentFramework.Context<IInputs>, logical_name: string, query: string) => {
-    return await context.webAPI.retrieveMultipleRecords(logical_name, query).then(
+  const getRecords: any = async (context: ComponentFramework.Context<IInputs>, logicalName: string, query: string) => {
+    return await context.webAPI.retrieveMultipleRecords(logicalName, query).then(
         function (response: ComponentFramework.WebApi.RetrieveMultipleResponse) 
         {
             const result = response.entities;
@@ -81,9 +73,9 @@ export const HelloWorld: React.FC<IHelloWorldProps> = (props) => {
               console.log("set false");
             } else {
                 setChecked(true);
-                setLikeId(result[0].cr255_likeid);
+                setLikeId(result[0][props.likeTableIdAttribute]);
                 console.log(result[0]);
-                console.log(result[0].cr255_likeid);
+                console.log(result[0][props.likeTableIdAttribute]);
                 console.log("set true");
             }
             console.log("checked is " + checked);
@@ -95,47 +87,19 @@ export const HelloWorld: React.FC<IHelloWorldProps> = (props) => {
         }
         )
 }
-  //useEffect(queryData(), [checked]);
-  //const muted = true;
+
   console.log(checked);
-  useEffect(() => getRecords(props.context, props.logical_name, props.query)
+  useEffect(() => getRecords(props.context, props.logicalName, props.query)
   , []);
 
   return (
       <DefaultButton
         toggle
         muted={checked}
-        text={checked ? 'いいね解除' : 'いいね'}
+        text={checked ? 'いいね済み' : 'いいね'}
         iconProps={checked ? LikeIconSolid : LikeIcon}
         allowDisabledFocus
         onClick={checked ? () => deleteLikeRecrod() : () => createLikeRecrod()}
-        disabled={props.disabled}
       />
   )
 }
-
-// export class HelloWorld extends React.Component<IHelloWorldProps ,IButtonExampleProps>{
-//   const { disabled, checked } = this.props;
-//   const [muted, { toggle: setMuted }] = useBoolean(false);
-
-//   public render(): React.ReactNode {
-//     return (
-//       <>
-//         <Label>
-//         {this.props.name}
-//       </Label>
-//       <p>
-//       <DefaultButton
-//         toggle
-//         checked={muted || checked}
-//         text={muted ? 'Volume muted' : 'Volume unmuted'}
-//         iconProps={muted ? volume0Icon : volume3Icon}
-//         onClick={setMuted}
-//         allowDisabledFocus
-//         disabled={disabled}
-//       />
-//       </p>
-//       </>
-//     )
-//   }
-// }

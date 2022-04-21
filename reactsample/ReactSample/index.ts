@@ -1,14 +1,10 @@
 import { IInputs, IOutputs } from "./generated/ManifestTypes";
-import { HelloWorld, IHelloWorldProps } from "./HelloWorld";
+import { LikeButton, ILikeButtonProps } from "./LikeButton";
 import * as React from "react";
 
-export class ReactSample implements ComponentFramework.ReactControl<IInputs, IOutputs> {
+export class PCFLikeButton implements ComponentFramework.ReactControl<IInputs, IOutputs> {
     private theComponent: ComponentFramework.ReactControl<IInputs, IOutputs>;
     private notifyOutputChanged: () => void;
-    //private logical_name: string = "geek_like";
-    private logical_name: string = "cr255_like";
-    private veiw_id: string = "xxxxxxxxxx";
-
 
     /**
      * Empty constructor.
@@ -36,40 +32,27 @@ export class ReactSample implements ComponentFramework.ReactControl<IInputs, IOu
      * @returns ReactElement root react element for the control
      */
     public updateView(context: ComponentFramework.Context<IInputs>): React.ReactElement {
-        console.log("load - initial");
+        const { likeTableLogicalName, likeTableIdAttribute, lookUpValueAttribute, parentTableCollectionName, lookUpAttributeName} = context.parameters
         const recordId = this.getPageParameters().id;
+
+        if (!recordId) {
+            return React.createElement('div');
+        }
+
         const userId = context.userSettings.userId;
-        //const query = `$filter=_ownerid_value eq ${userId} and _geek_qanda_value eq ${recordId}`;
-        console.log(userId);
-        const query = `?$filter=_ownerid_value eq ${userId.replace(/{|}/g, "")} and _cr255_sample_product_value eq ${recordId}`;
-        console.log("before - load2");
-        console.log(query);
-        // let result: any = new Array();
-        // result = this.getRecords(context, this.logical_name, query);
-        // console.log("render");
-        // console.log(result[0]);
-        // console.log(result[0]["cr255_likeid"]);
-        // const props: IHelloWorldProps = { 
-        //     name: 'Hello, World!',
-        //     title: 'title',
-        //     disabled: false,
-        //     result: result,
-        //     onClickFunc: result.length == 0 ? 
-        //     this.createLikeRecrod(context, this.logical_name, recordId) : 
-        //     this.deleteLikeRecrod(context, this.logical_name, result[0]["cr255_likeid"]
-        //     )
-        // };
-        const props: IHelloWorldProps = { 
-                name: 'Hello, World!',
-                title: 'title',
-                disabled: false,
+        const query = `?$filter=_ownerid_value eq ${userId.replace(/{|}/g, "")} and ${lookUpValueAttribute.raw} eq ${recordId}`;
+        
+        const props: ILikeButtonProps = { 
                 context: context,
                 query: query,
                 recordId: recordId,
-                logical_name: this.logical_name
+                logicalName: String(likeTableLogicalName.raw),
+                parentTableCollectionName: String(parentTableCollectionName.raw),
+                lookUpAttributeName: String(lookUpAttributeName.raw),
+                likeTableIdAttribute: String(likeTableIdAttribute.raw)
             };
         return React.createElement(
-            HelloWorld, props
+            LikeButton, props
         );
     }
 
@@ -117,8 +100,8 @@ export class ReactSample implements ComponentFramework.ReactControl<IInputs, IOu
         return parametersObj;
     }
 
-    private async getRecords(context: ComponentFramework.Context<IInputs>, logical_name: string, query: string) {
-        const result = await context.webAPI.retrieveMultipleRecords(logical_name, query).then(
+    private async getRecords(context: ComponentFramework.Context<IInputs>, logicalName: string, query: string) {
+        const result = await context.webAPI.retrieveMultipleRecords(logicalName, query).then(
             function (response: ComponentFramework.WebApi.RetrieveMultipleResponse) 
             {
                 const result = response.entities;
@@ -138,9 +121,9 @@ export class ReactSample implements ComponentFramework.ReactControl<IInputs, IOu
         return result;
     }
 
-    private deleteLikeRecrod: any = (context: ComponentFramework.Context<IInputs>, logical_name: string, recordId: string) => {
+    private deleteLikeRecrod: any = (context: ComponentFramework.Context<IInputs>, logicalName: string, recordId: string) => {
 
-        context.webAPI.deleteRecord(logical_name, recordId).then
+        context.webAPI.deleteRecord(logicalName, recordId).then
         (
             function (response: ComponentFramework.LookupValue)
             {
@@ -156,11 +139,11 @@ export class ReactSample implements ComponentFramework.ReactControl<IInputs, IOu
         );
       }
 
-    private createLikeRecrod: any = (context: ComponentFramework.Context<IInputs>, logical_name: string, parentRecordId: string) => {
+    private createLikeRecrod: any = (context: ComponentFramework.Context<IInputs>, logicalName: string, parentRecordId: string) => {
           const data: any = {
               "cr255_sample_product@odata.bind": `/sample_products(${parentRecordId})`
           }; 
-          context.webAPI.createRecord(logical_name, data).then
+          context.webAPI.createRecord(logicalName, data).then
           (
               function (response: ComponentFramework.LookupValue)
               {
