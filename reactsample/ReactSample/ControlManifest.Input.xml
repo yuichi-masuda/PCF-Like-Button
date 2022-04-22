@@ -18,8 +18,6 @@
       -->
     </external-service-usage>
     <!-- property node identifies a specific, configurable piece of data that the control expects from CDS -->
-    <property name="sampleProperty" display-name-key="Property_Display_Key" description-key="Property_Desc_Key" of-type="SingleLine.Text" usage="bound" required="true" />
-    <property name="sampleProperty2" display-name-key="Property_Display_Key2" description-key="Property_Desc_Key" of-type="SingleLine.Text" usage="input" required="true" />
     <property name="likeTableLogicalName" display-name-key="Like_Table_Logical_Name" description-key="Select Like Table Logical Name" of-type="SingleLine.Text" usage="input" required="true" default-value="" />
     <property name="likeTableIdAttribute" display-name-key="Like_Table_Id_Attribute" description-key="Select Like Table Id Attribute" of-type="SingleLine.Text" usage="input" required="true" default-value="" />
     <property name="lookUpValueAttribute" display-name-key="LookUp_Value_Attribute" description-key="Select LookUp Value Attribute" of-type="SingleLine.Text" usage="input" required="true" default-value="" />
